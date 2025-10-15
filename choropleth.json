@@ -1,0 +1,95 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": { "text": "Average API per State (selected months)", "fontWeight": "bold", "fontSize": 20, "font": "serif"},
+  
+  "vconcat": [
+    {
+      "width": 960,
+      "height": 520,
+      "background": null,
+      "projection": { "type": "equirectangular", "center": [110, 10], "scale": 2000 },
+      "layer": [
+        { "data": { "sphere": true }, "mark": { "type": "geoshape", "fill": "#a9d5f5ff" } },
+        {
+          "data": { "graticule": { "step": [20, 20] } },
+          "mark": { "type": "geoshape", "stroke": "#b8c4d1", "strokeWidth": 0.5, "opacity": 0.7 }
+        },
+        {
+          "data": {
+            "url": "https://vega.github.io/vega-datasets/data/world-110m.json",
+            "format": { "type": "topojson", "feature": "countries" }
+          },
+          "mark": { "type": "geoshape", "fill": "#e7eef5", "stroke": "#c7d1dc", "strokeWidth": 0.5 }
+        },
+
+        {
+          "data": { "url": "APIMS_monthly.csv" },
+          "transform": [
+            { "calculate": "toDate(datum.year + '-' + datum.month + '-01')", "as": "date" },
+            { "filter": { "param": "timebrush" } },
+
+            {
+              "calculate": "datum.state == 'Penang' ? 'Pulau Pinang' : datum.state == 'Kuala Lumpur' ? 'Federal Territory of Kuala Lumpur' : datum.state == 'Labuan' ? 'Federal Territory of Labuan' : datum.state == 'Putrajaya' ? 'Federal Territory of Putrajaya' : datum.state",
+              "as": "topo_key"
+            },
+
+            { "aggregate": [{ "op": "mean", "field": "api", "as": "api" }], "groupby": ["topo_key", "state"] },
+
+            {
+              "lookup": "topo_key",
+              "from": {
+                "data": { "url": "map.json", "format": { "type": "topojson", "feature": "layer1" } },
+                "key": "properties.Name",
+                "fields": ["type", "properties", "geometry"]
+              },
+              "as": ["geo_type", "geo_props", "geo_geom"]
+            },
+
+            { "calculate": "{type:'Feature', properties: datum.geo_props, geometry: datum.geo_geom}", "as": "geo" }
+          ],
+          "mark": { "type": "geoshape", "stroke": "#0f1115", "strokeWidth": 0.8 },
+          "encoding": {
+            "shape": { "field": "geo", "type": "geojson" },
+            "color": {
+              "field": "api",
+              "type": "quantitative",
+              "scale": {
+                "type": "threshold",
+                "domain": [50, 100, 200],
+                "range": ["#2ecc71", "#f1c40f", "#e67e22", "#e74c3c"]
+              },
+              "legend": { "title": "API (mean of selected months)" }
+            },
+            "tooltip": [
+              { "field": "state", "title": "State" },
+              { "field": "api", "title": "Avg API", "format": ".1f" }
+            ]
+          }
+        }
+      ]
+    },
+
+    {
+      "title": { "text": "Average API per State (selected months)", "fontWeight": "bold", "fontSize": 20, "font": "serif" },
+      "width": 960,
+      "height": 140,
+      "data": { "url": "APIMS_monthly.csv" },
+      "transform": [
+        { "calculate": "toDate(datum.year + '-' + datum.month + '-01')", "as": "date" }
+      ],
+      "mark": { "type": "line", "point": true },
+      "params": [
+        { "name": "timebrush", "select": { "type": "interval", "encodings": ["x"] } }
+      ],
+      "encoding": {
+        "x": { "timeUnit": "yearmonth", "field": "date", "title": null },
+        "y": { "aggregate": "mean", "field": "api", "title": "Avg API (Malaysia)" },
+        "tooltip": [
+          { "timeUnit": "yearmonth", "field": "date", "title": "Month" },
+          { "aggregate": "mean", "field": "api", "title": "Avg API", "format": ".1f" }
+        ]
+      }
+    }
+  ],
+  "config": { "view": { "stroke": null } }
+}

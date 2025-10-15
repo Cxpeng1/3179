@@ -15,35 +15,12 @@
 
   <body>
     <main>
-      <h1>Malaysia Air Pollution (API) for 2022</h1>
-
+      <h1>Malaysia Air Pollution (API)</h1>
+      
       <!-- MAP -->
       <div class="map-container">
         <div id="vis"></div>
 
-        <!-- Custom Legend -->
-        <svg id="legend" width="220" height="190" aria-label="API Legend">
-          <g transform="translate(10,10)">
-            <rect width="24" height="24" fill="green"></rect>
-            <text x="34" y="17">0–50 Good</text>
-          </g>
-          <g transform="translate(10,46)">
-            <rect width="24" height="24" fill="yellow" stroke="#555"></rect>
-            <text x="34" y="17">51–100 Moderate</text>
-          </g>
-          <g transform="translate(10,82)">
-            <rect width="24" height="24" fill="orange"></rect>
-            <text x="34" y="17">101–200 Unhealthy</text>
-          </g>
-          <g transform="translate(10,118)">
-            <rect width="24" height="24" fill="red"></rect>
-            <text x="34" y="17">201–300 Very Unhealthy</text>
-          </g>
-          <g transform="translate(10,154)">
-            <rect width="24" height="24" fill="darkred"></rect>
-            <text x="34" y="17">300+ Hazardous</text>
-          </g>
-        </svg>
       </div>
 
       <!-- BAR CHART -->
@@ -51,7 +28,14 @@
         <h2>Average API per Year (by State)</h2>
         <div id="barVis"></div>
       </section>
+      <!-- SCATTER: Population vs API -->
+      <section class="chart-section">
+        <h2>Population vs. API (2022)</h2>
+        <div id="scatterVis"></div>
+      </section>
     </main>
+
+
 
     <footer class="page-footer">
       <small>Source: APIMS yearly dataset • Author: Xu Peng Chan • Vega-Lite v5</small>
