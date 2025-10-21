@@ -12,5 +12,5 @@ vegaEmbed("#barVis", "bar.json", embedOpt);
 vegaEmbed("#lineVis", "line.json", embedOpt);
 vegaEmbed("#scatterVis", "scatter.json", embedOpt);
 vegaEmbed("#vehicleVis", "vehicle.json", embedOpt);
-vegaEmbed("#bumpVis", "bump.json", embedOpt);
+vegaEmbed("#bumpVis", "Bump.json", embedOpt);
 vegaEmbed("#lollipopVis", "lolipop.json", embedOpt);
