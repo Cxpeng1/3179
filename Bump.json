@@ -1,0 +1,98 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": {
+    "text": "Top 10 Selected States - Air Pollution Ranking",
+    "fontWeight": "bold"
+  },
+  "width": "container",
+  "height": 420,
+  "data": { "url": "APIMS_yearly.csv" },
+
+  "transform": [
+    {
+      "filter": {
+        "field": "state",
+        "oneOf": [
+          "Selangor",
+          "Kuala Lumpur",
+          "Putrajaya",
+          "Johor",
+          "Sarawak",
+          "Penang",
+          "Sabah",
+          "Perak",
+          "Pahang",
+          "Negeri Sembilan"
+        ]
+      }
+    },
+    {
+      "aggregate": [{ "op": "mean", "field": "api", "as": "avg_api" }],
+      "groupby": ["state", "year"]
+    },
+    {
+      "window": [{ "op": "rank", "as": "rank" }],
+      "sort": [
+        { "field": "year" },
+        { "field": "avg_api", "order": "descending" }
+      ],
+      "groupby": ["year"]
+    }
+  ],
+
+  "layer": [
+    {
+      "mark": { "type": "line", "point": true, "strokeWidth": 2 },
+      "encoding": {
+        "x": { "field": "year", "type": "ordinal", "title": "Year" },
+        "y": {
+          "field": "rank",
+          "type": "quantitative",
+          "title": "Rank (1 = Highest API)",
+          "scale": { "reverse": true, "domain": [1, 10] }
+        },
+        "color": {
+          "field": "state",
+          "type": "nominal",
+          "title": "State",
+          "scale": { "scheme": "tableau10" }
+        },
+        "detail": { "field": "state" },
+        "tooltip": [
+          { "field": "state", "title": "State" },
+          { "field": "year", "title": "Year" },
+          { "field": "avg_api", "title": "Average API", "format": ".1f" },
+          { "field": "rank", "title": "Rank" }
+        ]
+      }
+    },
+    {
+      "mark": {
+        "type": "text",
+        "dx": 6,
+        "align": "left",
+        "fontWeight": "bold"
+      },
+      "transform": [
+        {
+          "joinaggregate": [{ "op": "max", "field": "year", "as": "maxYear" }]
+        },
+        { "filter": "datum.year == datum.maxYear" }
+      ],
+      "encoding": {
+        "x": { "field": "year", "type": "ordinal" },
+        "y": { "field": "rank", "type": "quantitative" },
+        "text": { "field": "state" },
+        "color": { "field": "state", "type": "nominal" }
+      }
+    }
+  ],
+
+  "config": {
+    "font": "Roboto",
+    "title": { "font": "serif", "fontSize": 25 },
+    "axis": { "labelFont": "Roboto", "titleFont": "Roboto" },
+    "legend": { "labelFont": "Roboto", "titleFont": "Roboto" },
+    "view": { "stroke": null }
+  }
+}

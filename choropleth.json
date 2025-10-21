@@ -1,31 +1,61 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "title": { "text": "Average API per State (selected months)", "fontWeight": "bold", "fontSize": 20, "font": "serif"},
-  
+  "title": {
+    "text": "Average API per State (selected months)",
+    "fontWeight": "bold",
+    "fontSize": 25,
+    "font": "serif",
+    "anchor": "middle"
+  },
+
   "vconcat": [
     {
       "width": 960,
-      "height": 520,
-      "background": null,
-      "projection": { "type": "equirectangular", "center": [110, 10], "scale": 2000 },
+      "height": 400,
+      "projection": {
+        "type": "equirectangular",
+        "center": [110, 9],
+        "scale": 2500
+      },
       "layer": [
-        { "data": { "sphere": true }, "mark": { "type": "geoshape", "fill": "#a9d5f5ff" } },
         {
-          "data": { "graticule": { "step": [20, 20] } },
-          "mark": { "type": "geoshape", "stroke": "#b8c4d1", "strokeWidth": 0.5, "opacity": 0.7 }
+          "data": { "sphere": true },
+          "mark": { "type": "geoshape", "fill": "#a9d5f5ff" }
+        },
+        {
+          "data": {
+            "graticule": {
+              "step": [2, 2]
+            }
+          },
+          "mark": {
+            "type": "geoshape",
+            "fill": null,
+            "stroke": "white",
+            "strokeWidth": 1,
+            "opacity": 0.7
+          }
         },
         {
           "data": {
             "url": "https://vega.github.io/vega-datasets/data/world-110m.json",
             "format": { "type": "topojson", "feature": "countries" }
           },
-          "mark": { "type": "geoshape", "fill": "#e7eef5", "stroke": "#c7d1dc", "strokeWidth": 0.5 }
+          "mark": {
+            "type": "geoshape",
+            "fill": "#e7eef5",
+            "stroke": "#c7d1dc",
+            "strokeWidth": 0.5
+          }
         },
 
         {
           "data": { "url": "APIMS_monthly.csv" },
           "transform": [
-            { "calculate": "toDate(datum.year + '-' + datum.month + '-01')", "as": "date" },
+            {
+              "calculate": "toDate(datum.year + '-' + datum.month + '-01')",
+              "as": "date"
+            },
             { "filter": { "param": "timebrush" } },
 
             {
@@ -33,36 +63,59 @@
               "as": "topo_key"
             },
 
-            { "aggregate": [{ "op": "mean", "field": "api", "as": "api" }], "groupby": ["topo_key", "state"] },
+            {
+              "aggregate": [{ "op": "mean", "field": "api", "as": "api" }],
+              "groupby": ["topo_key", "state"]
+            },
 
             {
               "lookup": "topo_key",
               "from": {
-                "data": { "url": "map.json", "format": { "type": "topojson", "feature": "layer1" } },
+                "data": {
+                  "url": "map.json",
+                  "format": { "type": "topojson", "feature": "layer1" }
+                },
                 "key": "properties.Name",
                 "fields": ["type", "properties", "geometry"]
               },
               "as": ["geo_type", "geo_props", "geo_geom"]
             },
 
-            { "calculate": "{type:'Feature', properties: datum.geo_props, geometry: datum.geo_geom}", "as": "geo" }
+            {
+              "calculate": "{type:'Feature', properties: datum.geo_props, geometry: datum.geo_geom}",
+              "as": "geo"
+            }
           ],
-          "mark": { "type": "geoshape", "stroke": "#0f1115", "strokeWidth": 0.8 },
+          "mark": {
+            "type": "geoshape",
+            "stroke": "#0f1115",
+            "strokeWidth": 0.8
+          },
           "encoding": {
             "shape": { "field": "geo", "type": "geojson" },
             "color": {
               "field": "api",
               "type": "quantitative",
               "scale": {
-                "type": "threshold",
-                "domain": [50, 100, 200],
-                "range": ["#2ecc71", "#f1c40f", "#e67e22", "#e74c3c"]
+                "domain": [0, 100],
+                "scheme": "orangered"
               },
-              "legend": { "title": "API (mean of selected months)" }
+              "legend": {
+                "title": "API ",
+                "orient": "none",
+                "legendX": 900,
+                "legendY": 10,
+                "gradientLength": 140,
+                "gradientThickness": 16,
+                "values": [0, 20, 40, 60, 80, 100],
+                "titleFontSize": 12,
+                "labelFontSize": 10
+              }
             },
+
             "tooltip": [
               { "field": "state", "title": "State" },
-              { "field": "api", "title": "Avg API", "format": ".1f" }
+              { "field": "api", "title": "Average API", "format": ".1f" }
             ]
           }
         }
@@ -70,26 +123,74 @@
     },
 
     {
-      "title": { "text": "Average API per State (selected months)", "fontWeight": "bold", "fontSize": 20, "font": "serif" },
       "width": 960,
       "height": 140,
       "data": { "url": "APIMS_monthly.csv" },
       "transform": [
-        { "calculate": "toDate(datum.year + '-' + datum.month + '-01')", "as": "date" }
+        {
+          "calculate": "toDate(datum.year + '-' + datum.month + '-01')",
+          "as": "date"
+        }
       ],
-      "mark": { "type": "line", "point": true },
-      "params": [
-        { "name": "timebrush", "select": { "type": "interval", "encodings": ["x"] } }
-      ],
-      "encoding": {
-        "x": { "timeUnit": "yearmonth", "field": "date", "title": null },
-        "y": { "aggregate": "mean", "field": "api", "title": "Avg API (Malaysia)" },
-        "tooltip": [
-          { "timeUnit": "yearmonth", "field": "date", "title": "Month" },
-          { "aggregate": "mean", "field": "api", "title": "Avg API", "format": ".1f" }
-        ]
-      }
+      "layer": [
+        {
+          "mark": { "type": "line", "point": true },
+          "params": [
+            {
+              "name": "timebrush",
+              "select": { "type": "interval", "encodings": ["x"] }
+            }
+          ],
+          "encoding": {
+            "x": { "timeUnit": "yearmonth", "field": "date", "title": "Month" },
+            "y": {
+              "aggregate": "mean",
+              "field": "api",
+              "title": "Average API"
+            },
+            "tooltip": [
+              { "timeUnit": "yearmonth", "field": "date", "title": "Month" },
+              {
+                "aggregate": "mean",
+                "field": "api",
+                "title": "Avg API",
+                "format": ".1f"
+              }
+            ]
+          }
+        },
+        {
+          "data": {
+            "values": [
+              {
+                "date": "2019-07-01",
+                "y": 90,
+                "label": "2019 Southeast Asian haze\nAPI spike"
+              }
+            ]
+          },
+          "mark": {
+            "type": "text",
+            "align": "left",
+            "dx": 6,
+            "dy": -6,
+            "fontStyle": "italic"
+          },
+          "encoding": {
+            "x": { "field": "date", "type": "temporal" },
+            "y": { "field": "y", "type": "quantitative" },
+            "text": { "field": "label" }
+          }
+        }
+      ]
     }
   ],
-  "config": { "view": { "stroke": null } }
+
+  "config": {
+    "font": "Roboto",
+    "title": { "font": "serif", "fontSize": 25 },
+    "axis": { "labelFont": "Roboto", "titleFont": "Roboto" },
+    "legend": { "labelFont": "Roboto", "titleFont": "Roboto" },
+    "view": { "stroke": null }
+  }
 }

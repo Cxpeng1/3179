@@ -1,90 +1,143 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "title": {"text": "Population vs. API (2017–2022)", "fontWeight": "bold"},
-  "width": 760,
-  "height": 460,
-  "data": {"url": "APIMS_yearly.csv"},
-  "params": [
-    {
-      "name": "year_selection",
-      "value": 2022,
-      "bind": {
-        "input": "select",
-        "options": [2017,2018,2019,2020,2021,2022],
-        "name": "Select Year: "
-      }
-    }
-  ],
+  "width": 380,
+  "height": 420,
+  "data": { "url": "APIMS_yearly.csv" },
+
   "transform": [
-    {"filter": "datum.year == year_selection"},
+    { "filter": "datum.year == 2022" },
 
     {
       "lookup": "state",
       "from": {
-        "data": {"url": "Malaysia_population_state.csv"},
+        "data": { "url": "Malaysia_population_state.csv" },
         "key": "StateName",
-        "fields": ["Population","Area","PopulationDensity"]
+        "fields": ["Population", "Area", "PopulationDensity"]
       }
     },
-    {"calculate": "toNumber(replace(datum.Population, ',', ''))", "as": "pop_num"},
-    {"calculate": "toNumber(replace(datum.Area, ',', ''))", "as": "area_num"},
-    {"calculate": "toNumber(replace(datum.PopulationDensity, ',', ''))", "as": "dens_num"},
-    {"filter": "isValid(datum.pop_num) && isValid(datum.api)"}
+    {
+      "calculate": "toNumber(replace(datum.Population, ',', ''))",
+      "as": "pop_num"
+    },
+    { "calculate": "toNumber(replace(datum.Area, ',', ''))", "as": "area_num" },
+    {
+      "calculate": "toNumber(replace(datum.PopulationDensity, ',', ''))",
+      "as": "dens_num"
+    },
+    { "filter": "isValid(datum.pop_num) && isValid(datum.api)" }
   ],
 
   "layer": [
     {
-      "mark": {"type": "circle", "opacity": 0.75, "stroke": "#333", "strokeWidth": 0.7},
+      "mark": {
+        "type": "circle",
+        "opacity": 0.75,
+        "stroke": "#333",
+        "strokeWidth": 0.7
+      },
       "encoding": {
         "x": {
           "field": "pop_num",
           "type": "quantitative",
-          "title": "Population (selected year)",
-          "scale": {"type": "log", "domain": [80000, 14000000]},
-          "axis": {"format": "~s", "gridOpacity": 0.15}
+          "title": "State Population (log scale)",
+          "scale": { "type": "log", "domain": [80000, 14000000] },
+          "axis": { "format": "~s", "gridOpacity": 0.15 }
         },
         "y": {
           "field": "api",
           "type": "quantitative",
           "title": "Average API",
-          "axis": {"gridOpacity": 0.15}
+          "axis": {
+            "gridOpacity": 0.15,
+            "tickCount": 5
+          },
+          "scale": { "domain": [20, 70] }
         },
         "size": {
           "field": "area_num",
           "type": "quantitative",
           "title": "Land Area (sq km)",
-          "scale": {"range": [40, 550]}
+          "scale": { "range": [200, 1800] },
+          "legend": null
         },
         "color": {
           "field": "dens_num",
           "type": "quantitative",
           "title": "Population Density",
-          "scale": {"scheme": "blues", "type": "sqrt"}
+          "scale": { "scheme": "blues", "type": "sqrt" },
+          "legend": {
+            "orient": "bottom",
+            "direction": "horizontal",
+            "titleAnchor": "middle",
+            "titleFontWeight": "bold",
+            "columns": 2
+          }
         },
         "tooltip": [
-          {"field": "state", "title": "State"},
-          {"field": "year", "title": "Year"},
-          {"field": "pop_num", "title": "Population", "format": ","},
-          {"field": "api", "title": "Average API", "format": ".1f"},
-          {"field": "area_num", "title": "Area (km²)", "format": ","},
-          {"field": "dens_num", "title": "Pop Density", "format": ","}
+          { "field": "state", "title": "State" },
+          { "field": "year", "title": "Year" },
+          { "field": "pop_num", "title": "Population", "format": "," },
+          { "field": "api", "title": "Average API", "format": ".1f" },
+          { "field": "area_num", "title": "Area (km²)", "format": "," },
+          { "field": "dens_num", "title": "Pop Density", "format": "," }
         ]
       }
     },
 
     {
-      "transform": [{"regression": "api", "on": "pop_num", "method": "linear"}],
-      "mark": {"type": "line", "strokeDash": [6,4], "opacity": 0.9},
+      "transform": [
+        { "regression": "api", "on": "pop_num", "method": "linear" }
+      ],
+      "mark": { "type": "line", "strokeDash": [6, 4], "opacity": 0.9 },
       "encoding": {
-        "x": {"field": "pop_num", "type": "quantitative", "scale": {"type": "log", "domain": [80000, 14000000]}},
-        "y": {"field": "api", "type": "quantitative"},
-        "color": {"value": "#555"}
+        "x": {
+          "field": "pop_num",
+          "type": "quantitative",
+          "scale": { "type": "log", "domain": [80000, 14000000] }
+        },
+        "y": { "field": "api", "type": "quantitative" },
+        "color": { "value": "#555" }
+      }
+    },
+    {
+      "transform": [{ "filter": "datum.state == 'Selangor'" }],
+      "mark": {
+        "fontSize": 11.5,
+        "type": "text",
+        "align": "right",
+        "dx": 1,
+        "dy": -10,
+        "color": "#000000"
+      },
+      "encoding": {
+        "x": { "field": "pop_num", "type": "quantitative" },
+        "y": { "field": "api", "type": "quantitative" },
+        "text": { "value": "Selangor: largest population, higher API" }
+      }
+    },
+    {
+      "transform": [{ "filter": "datum.state == 'Sarawak'" }],
+      "mark": {
+        "fontSize": 11.5,
+        "type": "text",
+        "align": "right",
+        "dx": -10,
+        "dy": -10,
+        "color": "#000000"
+      },
+      "encoding": {
+        "x": { "field": "pop_num", "type": "quantitative" },
+        "y": { "field": "api", "type": "quantitative" },
+        "text": { "value": "Large land area, lower density → lower API" }
       }
     }
   ],
 
   "config": {
-    "view": {"stroke": null},
-    "legend": {"labelFontSize": 11, "titleFontSize": 12}
+    "font": "Roboto",
+    "title": { "font": "serif","fontSize": 15 },
+    "axis": { "labelFont": "Roboto", "titleFont": "Roboto" },
+    "legend": { "labelFont": "Roboto", "titleFont": "Roboto","labelFontSize": 11, "titleFontSize": 12 },
+    "view": { "stroke": null }
   }
 }

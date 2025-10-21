@@ -2,44 +2,113 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Malaysia Air Pollution (API) — Interactive Visualisation</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <!-- Vega libraries -->
     <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
     <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
     <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="style.css" />
   </head>
 
   <body>
-    <main>
-      <h1>Malaysia Air Pollution (API)</h1>
-      
-      <!-- MAP -->
-      <div class="map-container">
-        <div id="vis"></div>
+    <main class="page">
+      <!-- Title -->
+      <header class="hero">
+        <h1>Air Pollution in Malaysia</h1>
 
-      </div>
+        <!-- Two-column lede-->
+        <div class="lede-grid">
+          <p>
+            This visualisation explores Malaysia’s Air Pollution Index (API) across different states and years.
+            It highlights how air quality varies geographically and seasonally, 
+            revealing areas that experience higher pollution levels over time.
+
+          </p>
+          <p>
+            The interactive map and charts allow users to observe spatial patterns, track yearly fluctuations, 
+            and examine possible links between population, urbanisation, and pollution intensity.
+          </p>
+        </div>
+        <p style="text-align: center; margin-top: 20px; margin-bottom: 20px;">
+        💡Tip: To download the charts, click the three dots (•••) in the top-right corner of the chart and choose the Download option.
+        </p>
+
+      </header>
+
+      <!-- MAP CARD -->
+      <section class="card">
+        <div id="vis" class="vis"></div>
+        <p style="text-align: center; margin-top: 20px; margin-bottom: 20px;">
+        💡Tip:  Hover over and drag on the line below to choose the month you want to check.
+        </p>
+      </section>
 
       <!-- BAR CHART -->
-      <section class="chart-section">
-        <h2>Average API per Year (by State)</h2>
-        <div id="barVis"></div>
+      <section class="card">
+        <div id="barVis" class="vis"></div>
       </section>
-      <!-- SCATTER: Population vs API -->
-      <section class="chart-section">
-        <h2>Population vs. API (2022)</h2>
-        <div id="scatterVis"></div>
+      <!-- LOLIPOP CHART -->
+      <section class="card">
+        <div id="lollipopVis" class="vis"></div>
       </section>
+      <!-- BUMP CHART -->
+      <section class="card">
+        <div id="bumpVis" class="vis"></div>
+        <section class="explanation">
+        <p><left>The bump chart shows the yearly ranking of average Air Pollution Index (API) levels among ten selected Malaysian states from 2017 to 2022. </br>
+
+          <p style="text-indent: 2em;">• Selangor, Kuala Lumpur, and Negeri Sembilan consistently occupy the top ranks, reflecting the impact of urbanisation, traffic congestion, and <p style="text-indent: 2em;">industrial activity.</br>
+
+          <p style="text-indent: 2em;">• Sarawak, Sabah, and Pahang remain at the lower end of the ranking, indicating cleaner air due to lower population density and larger land <p style="text-indent: 2em;">areas.</br>
+
+          <p style="text-indent: 2em;">• Penang, Perak, and Putrajaya fluctuate in the middle range, showing moderate pollution levels with minor year-to-year changes.</br>
+
+          <br/>Overall, the national pattern remains stable, with urban centres continuing to record higher pollution levels than rural regions.</left></p>
+        </section>
+        </section>
+      <h2 class="compare-title">Population and Vehicle Influence on Air Pollution in Malaysia (current year)</h2>
+      <!-- SCATTER -->
+      <section class="compare card">
+        <div class="compare-grid">
+          <figure class="subplot">
+            <figcaption>Relationship between State Population and Air Pollution Index (API)</figcaption>
+            <div id="scatterVis"></div>
+          </figure>
+
+          <figure class="subplot">
+            <figcaption>Relationship between Number of Registered Vehicles and Air Pollution Index (API)</figcaption>
+            <div id="vehicleVis"></div>
+          </figure>
+        </div>
+      <div>
+        <section class="explanation">
+        <p><left>
+          Both visualisations highlight how urbanisation factors influence air pollution in Malaysia. </br>
+          <p style="text-indent: 2em;">• The <b>population chart</b> shows a mild positive trend — states with larger populations (e.g., Selangor, Kuala Lumpur) generally record higher API <p style="text-indent: 2em;">values, though population alone is not the main driver.</br>
+          <p style="text-indent: 2em;">• The <b>vehicle chart</b> shows a stronger correlation — states with more registered vehicles tend to have higher API levels, suggesting that <p style="text-indent: 2em;"> vehicle emissions are a key contributor to air quality degradation.</br>
+          <br/>Overall, the findings indicate that traffic density and urban growth play major roles in shaping Malaysia’s air pollution patterns.
+        </p></left>
+        </section>
+      </div>
+      </section>
+       
+
+      <footer class="page-footer">
+        <small>
+          <a href="https://www.kaggle.com/datasets/ynshung/malaysia-air-pollution-index">
+            Source: Air Pollution Index (API) in Malaysia
+          </a><br/>
+          <a href="https://open.dosm.gov.my/data-catalogue/population_state">
+            Source: Population Data in Malaysia
+          </a><br/>
+          <a href="https://data.gov.my/dashboard/vehicle-registrations">
+            Source: Vehicle Registration Data in Malaysia
+          </a>
+        </br>• Author: Xu Peng Chan • Vega-Lite v5 • Date: October 2025
+        </small>
+      </footer>
     </main>
-
-
-
-    <footer class="page-footer">
-      <small>Source: APIMS yearly dataset • Author: Xu Peng Chan • Vega-Lite v5</small>
-    </footer>
 
     <script src="vega_lite_vis.js"></script>
   </body>

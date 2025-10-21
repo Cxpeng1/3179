@@ -1,0 +1,150 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": {
+    "text": "Top 10 Most-Polluted States (Average API 2017-2022)",
+    "fontWeight": "bold",
+    "fontSize": 25,
+    "font": "serif",
+    "anchor": "middle"
+  },
+
+  "data": { "url": "APIMS_yearly.csv" },
+
+  "transform": [
+    {
+      "filter": {
+        "field": "state",
+        "oneOf": [
+          "Selangor",
+          "Kuala Lumpur",
+          "Putrajaya",
+          "Johor",
+          "Sarawak",
+          "Penang",
+          "Sabah",
+          "Perak",
+          "Pahang",
+          "Negeri Sembilan"
+        ]
+      }
+    },
+    {
+      "calculate": "toNumber(replace(trim(datum.api), /,/g, ''))",
+      "as": "api_num"
+    },
+    { "filter": "isValid(datum.api_num) && isFinite(datum.api_num)" },
+    {
+      "aggregate": [{ "op": "mean", "field": "api_num", "as": "avg_api" }],
+      "groupby": ["state"]
+    },
+    {
+      "window": [{ "op": "rank", "as": "r" }],
+      "sort": [{ "field": "avg_api", "order": "descending" }]
+    },
+    { "filter": "datum.r <= 10" },
+    {
+      "calculate": "'flag/' + replace(datum.state, ' ', '_') + '.png'",
+      "as": "flag_url"
+    }
+  ],
+
+  "hconcat": [
+    {
+      "width": 500,
+      "height": 420,
+      "encoding": {
+        "x": {
+          "field": "avg_api",
+          "type": "quantitative",
+          "title": "Average API"
+        },
+        "y": {
+          "field": "state",
+          "type": "ordinal",
+          "title": null,
+          "sort": { "field": "r", "order": "ascending" }
+        }
+      },
+      "layer": [
+        { "mark": { "type": "rule", "strokeWidth": 3, "color": "#B3D9EF" } },
+        { "mark": { "type": "circle", "size": 70, "color": "#70AADB" } },
+        {
+          "mark": { "type": "image", "width": 35, "height": 22 },
+          "encoding": {
+            "url": { "field": "flag_url" },
+            "tooltip": [
+              { "field": "state", "title": "State" },
+              { "field": "avg_api", "title": "Average API", "format": ".1f" }
+            ]
+          }
+        }
+      ]
+    },
+
+    {
+      "width": 360,
+      "height": 420,
+      "data": {
+        "values": [
+          {
+            "y": 410,
+            "text": "This lollipop-style chart ranks Malaysia’s ten most-polluted "
+          },
+          { "y": 380, "text": "states based on their mean Air Pollution Index (API)" },
+          { "y": 350, "text": "recorded between 2017–2022." },
+
+          {
+            "y": 310,
+            "text": "•  Selangor, Kuala Lumpur, and Putrajaya occupy the top "
+          },
+          {
+            "y": 280,
+            "text": "positions, reflecting higher pollution due to dense "
+          },
+          { "y": 250, "text": "urbanisation, industry, and traffic." },
+
+          {
+            "y": 210,
+            "text": "•  Negeri Sembilan, Penang, and Perak follow with moderate "
+          },
+          { "y": 180, "text": " API levels, driven by regional industrial corridors and " },
+          { "y": 150, "text": "suburban expansion." },
+
+          {
+            "y": 110,
+            "text": "•  Johor, Pahang, Sarawak, and Sabah appear lower but still"
+          },
+          {
+            "y": 80,
+            "text": "show pollution spikes, partly influenced by the"
+          },
+          {
+            "y": 50,
+            "text": "2019 Southeast Asian haze."
+          },
+
+          {
+            "y": 10,
+            "text": "Overall, the chart highlights a clear West–East Malaysia"
+          },
+          { "y": -20, "text": " contrast— urban vs rural." }
+        ]
+      },
+      "mark": { "type": "text", "align": "left" },
+      "encoding": {
+        "y": { "field": "y", "type": "quantitative", "axis": null },
+        "x": { "value": 8 },
+        "text": { "field": "text" }
+      }
+    }
+  ],
+
+  "config": {
+    "font": "Roboto",
+    "axis": { "labelFont": "Roboto", "titleFont": "Roboto" },
+    "legend": { "labelFont": "Roboto", "titleFont": "Roboto" },
+    "title": { "font": "Roboto", "fontSize": 25, "anchor": "middle" },
+    "text": { "font": "Roboto", "fontSize": 16 },
+    "view": { "stroke": null }
+  }
+}

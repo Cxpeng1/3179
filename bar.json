@@ -1,7 +1,12 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "width": "container",
-  "height": 420,
+  "title": {
+    "text": "Average API per Year (by State)",
+    "fontWeight": "bold",
+    "fontSize": 25,
+    "font": "serif",
+    "anchor": "middle"
+  },
   "data": { "url": "APIMS_yearly.csv" },
 
   "params": [
@@ -12,9 +17,22 @@
         "input": "select",
         "name": "Select State: ",
         "options": [
-          "Johor","Kedah","Kelantan","Kuala Lumpur","Labuan","Melaka",
-          "Negeri Sembilan","Pahang","Penang","Perak","Perlis",
-          "Putrajaya","Sabah","Sarawak","Selangor","Terengganu"
+          "Johor",
+          "Kedah",
+          "Kelantan",
+          "Kuala Lumpur",
+          "Labuan",
+          "Melaka",
+          "Negeri Sembilan",
+          "Pahang",
+          "Penang",
+          "Perak",
+          "Perlis",
+          "Putrajaya",
+          "Sabah",
+          "Sarawak",
+          "Selangor",
+          "Terengganu"
         ]
       }
     }
@@ -22,59 +40,180 @@
 
   "transform": [
     { "calculate": "lower(trim(datum.state))", "as": "state_norm" },
-    { "calculate": "toNumber(replace(trim(datum.api), /,/g, ''))", "as": "api_num" },
-    { "calculate": "toNumber(replace(trim(datum.year), /,/g, ''))", "as": "year_num" },
+    {
+      "calculate": "toNumber(replace(trim(datum.api), /,/g, ''))",
+      "as": "api_num"
+    },
+    {
+      "calculate": "toNumber(replace(trim(datum.year), /,/g, ''))",
+      "as": "year_num"
+    },
     { "filter": "isValid(datum.api_num) && isFinite(datum.api_num)" },
     { "calculate": "lower(pState)", "as": "pstate_norm" },
     { "filter": "datum.state_norm == datum.pstate_norm" }
   ],
 
-  "layer": [
+  "hconcat": [
     {
-      "mark": { "type": "bar" },
-      "encoding": {
-        "x": { "field": "year_num", "type": "ordinal", "title": "Year", "sort": "ascending" },
-        "y": { "field": "api_num", "type": "quantitative", "title": "API", "scale": { "nice": true } },
-        "tooltip": [
-          { "field": "state", "title": "State" },
-          { "field": "year_num", "title": "Year", "format": "d" },
-          { "field": "api_num", "title": "API", "format": ",.1f" }
+      "width": 550,
+      "height": 420,
+      "layer": [
+        {
+          "mark": { "type": "bar", "tooltip": true },
+          "encoding": {
+            "x": {
+              "field": "year_num",
+              "type": "ordinal",
+              "title": "Year",
+              "sort": "ascending",
+              "axis": { "labelAngle": 0 }
+            },
+            "y": {
+              "field": "api_num",
+              "type": "quantitative",
+              "title": "Average API",
+              "scale": { "nice": true }
+            },
+            "fill": { "value": "#B3D9EF" }
+          }
+        },
+
+        {
+          "transform": [
+            {
+              "aggregate": [
+                { "op": "mean", "field": "api_num", "as": "mean_api" }
+              ]
+            },
+            {
+              "calculate": "'Mean: ' + format(datum.mean_api, ',.1f')",
+              "as": "mean_label"
+            }
+          ],
+          "mark": {
+            "type": "rule",
+            "strokeDash": [6, 4],
+            "strokeWidth": 2,
+            "color": "#666"
+          },
+          "encoding": { "y": { "field": "mean_api", "type": "quantitative" } }
+        },
+        {
+          "transform": [
+            {
+              "aggregate": [
+                { "op": "mean", "field": "api_num", "as": "mean_api" }
+              ]
+            },
+            {
+              "calculate": "'Mean: ' + format(datum.mean_api, ',.1f')",
+              "as": "mean_label"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "dy": -6,
+            "x": 6,
+            "align": "left",
+            "color": "#333",
+            "fontWeight": "bold"
+          },
+          "encoding": {
+            "y": { "field": "mean_api", "type": "quantitative" },
+            "text": { "field": "mean_label" }
+          }
+        },
+
+        {
+          "transform": [
+            {
+              "window": [{ "op": "rank", "as": "r" }],
+              "sort": [{ "field": "api_num", "order": "descending" }]
+            },
+            { "filter": "datum.r == 1" },
+            {
+              "calculate": "'Max due to haze (' + format(datum.year_num,'d') + ')'",
+              "as": "max_label"
+            }
+          ],
+          "mark": {
+            "type": "text",
+            "dy": -8,
+            "color": "#111",
+            "fontWeight": "bold"
+          },
+          "encoding": {
+            "x": { "field": "year_num", "type": "ordinal" },
+            "y": { "field": "api_num", "type": "quantitative" },
+            "text": { "field": "max_label" }
+          }
+        }
+      ]
+    },
+
+    {
+      "width": 360,
+      "height": 420,
+
+      "data": {
+        "values": [
+          {
+            "y": 410,
+            "text": "From 2017–2022, most states saw shifts in air pollution (API)"
+          },
+          {
+            "y": 380,
+            "text": "with a sharp spike in 2019 from regional haze and forest fires."
+          },
+
+          {
+            "y": 340,
+            "text": "• West Malaysia (Johor, Selangor, Kuala Lumpur, Negeri "
+          },
+          {
+            "y": 310,
+            "text": "Sembilan) recorded higher API from urbanisation and traffic."
+          },
+          {
+            "y": 270,
+            "text": "• East Malaysia (Sabah, Sarawak) was also affected in 2019"
+          },
+          {
+            "y": 240,
+            "text": "  when haze spread across Borneo, raising API temporarily."
+          },
+
+          {
+            "y": 200,
+            "text": "• After 2019, API stabilised as haze eased and lockdowns"
+          },
+          {
+            "y": 170,
+            "text": "  briefly reduced industrial and vehicle emissions."
+          },
+
+          { "y": 130, "text": "Overall, 2019 marks the regional haze impact," },
+          {
+            "y": 100,
+            "text": "  while the west–east contrast reflects Malaysia’s"
+          },
+          { "y": 70, "text": "  uneven urbanisation and industry levels." }
         ]
-      }
-    },
-
-    {
-      "transform": [
-        { "aggregate": [{ "op": "mean", "field": "api_num", "as": "mean_api" }] },
-        { "calculate": "'Mean: ' + format(datum.mean_api, ',.1f')", "as": "mean_label" }
-      ],
-      "mark": { "type": "rule", "strokeDash": [6, 4], "strokeWidth": 2, "color": "#555" },
-      "encoding": { "y": { "field": "mean_api", "type": "quantitative" } }
-    },
-
-    {
-      "transform": [
-        { "aggregate": [{ "op": "mean", "field": "api_num", "as": "mean_api" }] },
-        { "calculate": "'Mean: ' + format(datum.mean_api, ',.1f')", "as": "mean_label" }
-      ],
-      "mark": { "type": "text", "dy": -6, "x": 18, "align": "left", "color": "#333", "fontWeight": "bold" },
-      "encoding": { "y": { "field": "mean_api", "type": "quantitative" }, "text": { "field": "mean_label" } }
-    },
-
-    {
-      "transform": [
-        { "window": [{ "op": "rank", "as": "r" }], "sort": [{ "field": "api_num", "order": "descending" }] },
-        { "filter": "datum.r == 1" },
-        { "calculate": "'Max, due to haze in 2019'", "as": "labelText" }
-      ],
-      "mark": { "type": "text", "dy": -6, "color": "#111", "fontWeight": "bold" },
+      },
+      "mark": { "type": "text", "align": "left" },
       "encoding": {
-        "x": { "field": "year_num", "type": "ordinal" },
-        "y": { "field": "api_num", "type": "quantitative" },
-        "text": { "field": "labelText" }
+        "y": { "field": "y", "type": "quantitative", "axis": null },
+        "x": { "value": 8 },
+        "text": { "field": "text" }
       }
     }
   ],
-
-  "config": { "view": { "stroke": null } }
+  "config": {
+    "font": "Roboto",
+    "axis": { "labelFont": "Roboto", "titleFont": "Roboto" },
+    "legend": { "labelFont": "Roboto", "titleFont": "Roboto" },
+    "title": { "font": "Roboto", "fontSize": 25 },
+    "text": { "font": "Roboto", "fontSize": 16 },
+    "view": { "stroke": null }
+  }
 }
